@@ -19,11 +19,11 @@ def main():
 
         print("\nSelect option:")
 
-        print("1 → Build Vector Database")
+        print("1 -> Build Vector Database")
 
-        print("2 → Ask Questions")
+        print("2 -> Ask Questions")
 
-        print("3 → Exit")
+        print("3 -> Exit")
 
         choice = input("\nEnter choice: ")
 

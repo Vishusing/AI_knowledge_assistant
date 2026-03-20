@@ -4,7 +4,7 @@ Vector DB loader
 Loads existing database instead of recreating.
 """
 
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 from config.settings import CHROMA_PATH
 

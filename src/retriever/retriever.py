@@ -22,14 +22,10 @@ def create_retriever(vectorstore):
     print("Creating retriever...")
 
     retriever = vectorstore.as_retriever(
-
+        search_type="mmr",
         search_kwargs={
-
-            "k":3   # number of chunks to retrieve
-            search_type="mmr",
-
-        }
-
+            "k": 3,  # number of chunks to retrieve
+        },
     )
 
     print("Retriever ready")
