@@ -5,10 +5,14 @@ Main controller file
 This file provides a simple menu to:
 1 Build database
 2 Ask questions
+4 Launch Streamlit UI
 """
 
 from scripts.build_db import build
 from scripts.ask import ask
+
+import subprocess
+import sys
 
 
 def main():
@@ -22,6 +26,8 @@ def main():
         print("1 -> Build Vector Database")
 
         print("2 -> Ask Questions")
+
+        print("4 -> Launch Streamlit UI")
 
         print("3 -> Exit")
 
@@ -40,6 +46,17 @@ def main():
             print("\nStarting assistant...\n")
 
             ask()
+
+
+        elif choice == "4":
+            print("\nLaunching Streamlit UI...\n")
+            try:
+                subprocess.run(
+                    [sys.executable, "-m", "streamlit", "run", "streamlit_app.py"],
+                    check=False,
+                )
+            except Exception as e:
+                print(f"Failed to launch Streamlit: {e}")
 
 
         elif choice == "3":

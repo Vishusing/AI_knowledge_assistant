@@ -5,3 +5,5 @@ langchain-openai==1.1.11
 langchain-chroma==1.1.0
 chromadb==1.5.5
 pypdf==6.9.1
+streamlit
+python-dotenv
