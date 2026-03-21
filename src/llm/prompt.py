@@ -24,13 +24,9 @@ Question:
 Answer:
 
 """
-
     prompt = PromptTemplate(
-
         template=template,
-
         input_variables=["context","question"]
-
     )
 
     return prompt

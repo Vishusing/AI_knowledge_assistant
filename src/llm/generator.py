@@ -1,22 +1,16 @@
 """
 Answer generation module
-
 Connects:
 Retriever + LLM + Prompt
 """
 
 from src.retriever.query import get_context
-
 from src.llm.llm_model import get_llm
-
 from src.llm.prompt import get_prompt
 
-
 def generate_answer(retriever, query):
-
     """
     Generate RAG answer.
-
     Steps:
     1 retrieve context
     2 build prompt
@@ -25,12 +19,9 @@ def generate_answer(retriever, query):
 
     print("Generating answer...")
 
-    # Get context
-    context = get_context(
-
+    context = get_context
         retriever,
         query
-
     )
 
     # Load prompt
@@ -38,11 +29,8 @@ def generate_answer(retriever, query):
 
     # Format prompt
     formatted_prompt = prompt.format(
-
         context=context,
-
         question=query
-
     )
 
     # Load LLM
@@ -50,9 +38,7 @@ def generate_answer(retriever, query):
 
     # Generate response
     response = llm.invoke(
-
         formatted_prompt
-
     )
 
     return response.content

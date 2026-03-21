@@ -1,4 +1,5 @@
 import os
+import time
 
 import streamlit as st
 
@@ -47,12 +48,11 @@ def database_exists() -> bool:
     return os.path.exists(CHROMA_PATH)
 
 
-pdf_default_path = os.path.join(DATA_PATH, "sample.pdf")
 st.sidebar.header("Vector database")
 st.sidebar.write(f"Chroma path: `{CHROMA_PATH}`")
 
 uploaded_pdf = st.sidebar.file_uploader(
-    "Upload a PDF (optional)",
+    "Upload a PDF",
     type=["pdf"],
     key="uploaded_pdf",
 )
@@ -60,30 +60,32 @@ uploaded_pdf = st.sidebar.file_uploader(
 if uploaded_pdf is not None:
     # Persist uploaded PDFs so the existing ingestion pipeline can read them.
     os.makedirs(DATA_PATH, exist_ok=True)
-    uploaded_path = os.path.join(DATA_PATH, uploaded_pdf.name)
+    # Use a timestamp prefix to avoid overwriting previously uploaded PDFs.
+    filename = uploaded_pdf.name
+    uploaded_path = os.path.join(DATA_PATH, f"{int(time.time())}_{filename}")
     with open(uploaded_path, "wb") as f:
         f.write(uploaded_pdf.getbuffer())
 
     st.session_state["pdf_path"] = uploaded_path
     st.sidebar.success(f"Uploaded: `{uploaded_pdf.name}`")
 
-st.sidebar.text_input(
-    "PDF file to ingest",
-    value=st.session_state.get("pdf_path", pdf_default_path),
-    key="pdf_path",
-)
+pdf_path = st.session_state.get("pdf_path")
 
 needs_build = not database_exists()
 
 if needs_build:
     st.sidebar.error("Vector DB not found. Build it before asking questions.")
 
-build_clicked = st.sidebar.button("Build / Rebuild vector database")
+build_clicked = st.sidebar.button("Feed this PDF to the AI")
 
 if build_clicked:
     with st.sidebar.spinner("Building vector database..."):
         try:
-            build(st.session_state.get("pdf_path", pdf_default_path))
+            if not pdf_path:
+                st.sidebar.error("Upload a PDF first, then click the build button.")
+                st.stop()
+
+            build(pdf_path)
             st.session_state.db_version += 1
             st.sidebar.success("Database built. You can ask questions now.")
         except Exception as e:

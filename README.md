@@ -29,18 +29,28 @@ LLM Generator
 
 ## Run Project
 
-Build database:
+Prerequisite:
+- Ensure `OPENROUTER_API_KEY` is set in `.env`.
+
+Build database (optional):
 
 1. Activate the virtual environment (Windows PowerShell):
    `.\venv\Scripts\Activate.ps1`
 
-2. Build the database:
+2. Install dependencies:
+   `pip install -r requirements.txt`
+
+3. Build the database (optional):
    `python scripts/build_db.py`
 
-Ask questions:
+Note: `scripts/build_db.py` ingests the single PDF found in `data/raw/`. If there are none (or multiple), it raises an error; use the Streamlit upload flow instead.
 
-1. (With the venv still active) Ask questions:
-   `python scripts/ask.py`
+Streamlit UI:
+
+1. (With the venv still active) Start the app:
+   `streamlit run streamlit_app.py`
+
+2. Upload a PDF in the sidebar, click `Feed this PDF to the AI`, then ask questions in the chat.
 
 ## Tech Stack
 
@@ -48,11 +58,11 @@ Python
 LangChain
 ChromaDB
 SentenceTransformers
-OpenAI/Groq or any other LLM (Just paste API key of that LLM in .env to use it)
+OpenRouter LLM (`OPENROUTER_API_KEY` in `.env`)
+Streamlit UI (chat + PDF upload)
 
 ## Future Improvements
 
-Streamlit UI
 FastAPI API
 Chat memory
 Multi-document ingestion
