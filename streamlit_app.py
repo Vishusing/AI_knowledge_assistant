@@ -1,5 +1,5 @@
 import os
-import time
+import hashlib
 
 import streamlit as st
 
@@ -34,6 +34,10 @@ if "messages" not in st.session_state:
     # Simple chat history storage for the UI.
     st.session_state.messages = []
 
+if "uploaded_pdf_signature" not in st.session_state:
+    # Tracks last uploaded file to avoid re-saving on Streamlit reruns.
+    st.session_state.uploaded_pdf_signature = None
+
 
 @st.cache_resource(show_spinner=False)
 def get_retriever(db_version: int):
@@ -51,6 +55,10 @@ def database_exists() -> bool:
 st.sidebar.header("Vector database")
 st.sidebar.write(f"Chroma path: `{CHROMA_PATH}`")
 
+if st.sidebar.button("Clear chat"):
+    st.session_state.messages = []
+    st.rerun()
+
 uploaded_pdf = st.sidebar.file_uploader(
     "Upload a PDF",
     type=["pdf"],
@@ -58,16 +66,28 @@ uploaded_pdf = st.sidebar.file_uploader(
 )
 
 if uploaded_pdf is not None:
-    # Persist uploaded PDFs so the existing ingestion pipeline can read them.
-    os.makedirs(DATA_PATH, exist_ok=True)
-    # Use a timestamp prefix to avoid overwriting previously uploaded PDFs.
-    filename = uploaded_pdf.name
-    uploaded_path = os.path.join(DATA_PATH, f"{int(time.time())}_{filename}")
-    with open(uploaded_path, "wb") as f:
-        f.write(uploaded_pdf.getbuffer())
+    file_bytes = uploaded_pdf.getvalue()
+    uploaded_signature = (
+        f"{uploaded_pdf.name}:{uploaded_pdf.size}:"
+        f"{hashlib.sha256(file_bytes).hexdigest()}"
+    )
 
-    st.session_state["pdf_path"] = uploaded_path
-    st.sidebar.success(f"Uploaded: `{uploaded_pdf.name}`")
+    if uploaded_signature != st.session_state.uploaded_pdf_signature:
+        # Persist uploaded PDF as the single source file for ingestion.
+        os.makedirs(DATA_PATH, exist_ok=True)
+        for name in os.listdir(DATA_PATH):
+            existing_path = os.path.join(DATA_PATH, name)
+            if os.path.isfile(existing_path) and name.lower().endswith(".pdf"):
+                os.remove(existing_path)
+
+        filename = uploaded_pdf.name
+        uploaded_path = os.path.join(DATA_PATH, filename)
+        with open(uploaded_path, "wb") as f:
+            f.write(file_bytes)
+
+        st.session_state["pdf_path"] = uploaded_path
+        st.session_state.uploaded_pdf_signature = uploaded_signature
+        st.sidebar.success(f"Uploaded: `{uploaded_pdf.name}`")
 
 pdf_path = st.session_state.get("pdf_path")
 
@@ -105,7 +125,7 @@ if database_exists():
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
-
+# Question and answer logic starts here
 prompt = st.chat_input("Ask a question")
 if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})

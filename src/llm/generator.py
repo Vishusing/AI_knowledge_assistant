@@ -19,7 +19,7 @@ def generate_answer(retriever, query):
 
     print("Generating answer...")
 
-    context = get_context
+    context = get_context(
         retriever,
         query
     )

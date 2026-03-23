@@ -11,7 +11,6 @@ from config.settings import CHROMA_PATH
 
 
 def create_vector_store(chunks, embedding_model):
-
     """
     Create and store embeddings in ChromaDB.
 
@@ -27,11 +26,9 @@ def create_vector_store(chunks, embedding_model):
 
     # Create Chroma database
     vectorstore = Chroma.from_documents(
-
         documents=chunks,
         embedding=embedding_model,
         persist_directory=CHROMA_PATH
-
     )
 
     print("Vector database created")
