@@ -23,64 +23,34 @@ from scripts.build_db import build
 
 
 st.set_page_config(
-    page_title="AI Knowledge Assistant"
+    page_title="DocAssistant"
 )
 
-st.title("AI Knowledge Assistant")
+st.title("DocAssistant")
+st.markdown("An AI-powered PDF assistant: Upload your document, assistant build a knowledge base, start chatting...")
 
 init_state()
 
 uploaded_pdf=render_sidebar()
 
 if uploaded_pdf:
-
     path=save_uploaded_pdf(
         uploaded_pdf
     )
 
     if path:
-
         st.session_state["pdf_path"]=path
-
         st.sidebar.success("Uploaded")
 
 
-if not database_exists(CHROMA_PATH):
 
-    st.sidebar.error(
-        "Vector DB missing"
-    )
-
-
-if st.sidebar.button(
-    "Feed PDF"
-):
-
-    pdf_path=st.session_state.get(
-        "pdf_path"
-    )
-
-    if pdf_path:
-
-        build(pdf_path)
-
-        st.session_state.db_version+=1
-
-        st.sidebar.success(
-            "Database built"
-        )
-
-        st.rerun()
 
 
 retriever=None
 
 if database_exists(CHROMA_PATH):
-
     retriever=get_retriever(
-
         st.session_state.db_version
-
     )
 
 
